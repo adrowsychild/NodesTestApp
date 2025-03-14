@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,11 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\DAL.Implementation\DAL.Implementation.csproj" />
+    <ProjectReference Include="..\DAL.Interfaces\DAL.Interfaces.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Services.Implementation\Services.Implementation.csproj" />
+    <ProjectReference Include="..\Services.Interfaces\Services.Interfaces.csproj" />
   </ItemGroup>
 
 </Project>
