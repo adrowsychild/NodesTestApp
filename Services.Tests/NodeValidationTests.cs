@@ -5,6 +5,7 @@ using Services.Implementation;
 using Services.Interfaces;
 using Models.Exceptions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Models.Dto;
 
 namespace Services.Tests
 {
@@ -45,43 +46,43 @@ namespace Services.Tests
         [TestMethod]
         public async Task AllThrowTreeNotFoundException()
         {
-            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.AddNodeAsync(new Models.Dto.AddNodeDto() { TreeName = "fake"}));
-            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.DeleteNodeAsync(new Models.Dto.DeleteNodeDto() { TreeName = "fake"}));
-            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.RenameNodeAsync(new Models.Dto.RenameNodeDto() { TreeName = "fake"}));
+            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.AddNodeAsync(new AddNodeDto() { TreeName = "fake"}));
+            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.DeleteNodeAsync(new DeleteNodeDto() { TreeName = "fake"}));
+            await Assert.ThrowsExceptionAsync<TreeNotFoundException>(() => nodeService.RenameNodeAsync(new RenameNodeDto() { TreeName = "fake"}));
         }
 
         [TestMethod]
         public async Task CreateRenameThrowUniqueNameException()
         {
-            await Assert.ThrowsExceptionAsync<UniqueNameException>(() => nodeService.AddNodeAsync(new Models.Dto.AddNodeDto() { NodeName = "test1", TreeName = treeName }));
-            await Assert.ThrowsExceptionAsync<UniqueNameException>(() => nodeService.RenameNodeAsync(new Models.Dto.RenameNodeDto() { NodeId = 2, NewNodeName = "test1", TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<UniqueNameException>(() => nodeService.AddNodeAsync(new AddNodeDto() { NodeName = "test1", TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<UniqueNameException>(() => nodeService.RenameNodeAsync(new RenameNodeDto() { NodeId = 2, NewNodeName = "test1", TreeName = treeName }));
         }
 
         [TestMethod]
         public async Task CreateRenameThrowEmptyNameException()
         {
-            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.AddNodeAsync(new Models.Dto.AddNodeDto() { NodeName = "", TreeName = treeName }));
-            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.AddNodeAsync(new Models.Dto.AddNodeDto() { NodeName = null, TreeName = treeName }));
-            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.RenameNodeAsync(new Models.Dto.RenameNodeDto() { NodeId = 2, NewNodeName = "", TreeName = treeName }));
-            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.RenameNodeAsync(new Models.Dto.RenameNodeDto() { NodeId = 2, NewNodeName = null, TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.AddNodeAsync(new AddNodeDto() { NodeName = "", TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.AddNodeAsync(new AddNodeDto() { NodeName = null, TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.RenameNodeAsync(new RenameNodeDto() { NodeId = 2, NewNodeName = "", TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<NameEmptyException>(() => nodeService.RenameNodeAsync(new RenameNodeDto() { NodeId = 2, NewNodeName = null, TreeName = treeName }));
         }
 
         [TestMethod]
         public async Task CreateThrowsParentNotFoundException()
         {
-            await Assert.ThrowsExceptionAsync<NodeNotFoundException>(() => nodeService.AddNodeAsync(new Models.Dto.AddNodeDto() { NodeName = "test1", TreeName = treeName, ParentNodeId = -1 }));
+            await Assert.ThrowsExceptionAsync<NodeNotFoundException>(() => nodeService.AddNodeAsync(new AddNodeDto() { NodeName = "test1", TreeName = treeName, ParentNodeId = -1 }));
         }
 
         [TestMethod]
         public async Task DeleteThrowsNotFoundException()
         {
-            await Assert.ThrowsExceptionAsync<NodeNotFoundException>(() => nodeService.DeleteNodeAsync(new Models.Dto.DeleteNodeDto() { NodeId = 11, TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<NodeNotFoundException>(() => nodeService.DeleteNodeAsync(new DeleteNodeDto() { NodeId = 11, TreeName = treeName }));
         }
 
         [TestMethod]
         public async Task DeleteThrowsDeleteChildrenException()
         {
-            await Assert.ThrowsExceptionAsync<DeleteChildrenException>(() => nodeService.DeleteNodeAsync(new Models.Dto.DeleteNodeDto() { NodeId = 1, TreeName = treeName }));
+            await Assert.ThrowsExceptionAsync<DeleteChildrenException>(() => nodeService.DeleteNodeAsync(new DeleteNodeDto() { NodeId = 1, TreeName = treeName }));
         }
 
         private Node CreateTestNode(int id, int? parentNodeId = null)

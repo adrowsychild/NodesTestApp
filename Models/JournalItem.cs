@@ -8,6 +8,7 @@ namespace Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public int EventId { get; set; }
 
         public string? ErrorMessage { get; set; }

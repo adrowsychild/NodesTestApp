@@ -7,6 +7,11 @@ namespace NodesTestApp.Middlewares
 {
     public class ExceptionLoggingMiddleware
     {
+        private const int ErrorDefaultStatusCode = StatusCodes.Status500InternalServerError;
+        private const string ErrorDefaultContentType = "application/json";
+        private const string SecureExceptionType = "Secure";
+        private const string DefaultExceptionType = "Exception";
+        private const string DefaultExceptionMessage = "Internal server error ID = {0}";
         private readonly RequestDelegate _next;
 
         public ExceptionLoggingMiddleware(RequestDelegate next)
@@ -20,17 +25,13 @@ namespace NodesTestApp.Middlewares
             {
                 await _next(context);
             }
-            catch (SecureException ex)
-            {
-                await HandleSecureExceptionAsync(service, context, ex);
-            }
             catch (Exception ex)
             {
-                await HandleGenericExceptionAsync(service, context, ex);
+                await WriteException(service, context, ex);
             }
         }
 
-        private async Task HandleSecureExceptionAsync(ILogExceptionService service, HttpContext context, SecureException ex)
+        private async Task WriteException(ILogExceptionService service, HttpContext context, Exception ex)
         {
             var journalItem = new JournalItem
             {
@@ -44,37 +45,26 @@ namespace NodesTestApp.Middlewares
 
             await service.AddJournalItemAsync(journalItem);
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsync(new
+            context.Response.ContentType = ErrorDefaultContentType;
+            context.Response.StatusCode = ErrorDefaultStatusCode;
+            string type;
+            string message;
+            if (ex is SecureException)
             {
-                type = "Secure",
-                id = journalItem.Id,
-                data = new { message = ex.Message }
-            }.ToString());
-        }
-
-        private async Task HandleGenericExceptionAsync(ILogExceptionService service, HttpContext context, Exception ex)
-        {
-            var journalItem = new JournalItem
+                type = SecureExceptionType;
+                message = ex.Message;
+            }
+            else
             {
-                EventId = ex.HResult,
-                ErrorMessage = ex.Message,
-                Timestamp = DateTime.UtcNow,
-                QueryParameters = context.Request.QueryString.Value,
-                BodyParameters = await new StreamReader(context.Request.Body).ReadToEndAsync(),
-                StackTrace = new StackTrace(ex, true).ToString()
-            };
+                type = DefaultExceptionType;
+                message = string.Format(DefaultExceptionMessage, ex.HResult);
+            }
 
-            await service.AddJournalItemAsync(journalItem);
-
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync(new
             {
                 type = "Exception",
                 id = journalItem.Id,
-                data = new { message = $"Internal server error ID = {ex.HResult}" }
+                data = new { message = message }
             }.ToString());
         }
     }
